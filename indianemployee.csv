@@ -1,0 +1,21 @@
+EmployeeID,Name,Department,Age,Salary,JoiningDate
+1,John Smith,Engineering,34,85000,2019-03-15
+2,Alice Johnson,HR,29,52000,2021-07-22
+3,Robert Williams,Finance,41,94000,2018-11-05
+4,Sophia Brown,Marketing,27,48000,2022-02-10
+5,Michael Jones,IT,36,78000,2020-09-18
+6,Emma Garcia,Sales,31,61000,2017-06-25
+7,David Miller,Operations,45,105000,2016-12-01
+8,Olivia Davis,Engineering,26,67000,2023-04-12
+9,Daniel Smith,Finance,39,89000,2015-08-30
+10,Grace Johnson,HR,33,56000,2020-01-14
+11,Ethan Brown,Marketing,28,47000,2021-10-09
+12,Isabella Jones,IT,42,95000,2017-05-20
+13,James Garcia,Sales,30,60000,2019-12-03
+14,Mia Miller,Operations,37,82000,2018-04-27
+15,Henry Davis,Engineering,44,110000,2016-07-11
+16,Charlotte Smith,Finance,25,54000,2022-11-19
+17,Lucas Johnson,HR,32,58000,2019-02-08
+18,Amelia Brown,Marketing,29,50000,2020-06-16
+19,Jack Jones,IT,40,92000,2015-10-21
+20,Evelyn Garcia,Sales,35,73000,2018-09-13
