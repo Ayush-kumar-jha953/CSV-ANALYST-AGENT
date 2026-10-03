@@ -14,11 +14,20 @@
 
 ## 📸 Screenshots
 
-| Upload a CSV and preview it | Ask questions in natural language |
-|---|---|
-|![Upload](<img width="752" height="507" alt="image" src="https://github.com/user-attachments/assets/84dd2892-f661-4863-9d18-c12aa20a91df" />)
-
-|![Chat](<img width="727" height="536" alt="image" src="https://github.com/user-attachments/assets/252cc2b6-c85f-4934-9389-67a99e75d8c4" />) |
+<table>
+  <tr>
+    <th align="center">Upload a CSV and preview it</th>
+    <th align="center">Ask questions in natural language</th>
+  </tr>
+  <tr>
+    <td>
+      <img src="https://github.com/user-attachments/assets/84dd2892-f661-4863-9d18-c12aa20a91df" alt="Upload a CSV file and preview the data" width="100%">
+    </td>
+    <td>
+      <img src="https://github.com/user-attachments/assets/252cc2b6-c85f-4934-9389-67a99e75d8c4" alt="Chat with the CSV Analyst Agent" width="100%">
+    </td>
+  </tr>
+</table>
 
 ---
 
