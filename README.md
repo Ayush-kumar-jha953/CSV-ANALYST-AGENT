@@ -16,9 +16,9 @@
 
 | Upload a CSV and preview it | Ask questions in natural language |
 |---|---|
-| ![Upload](<img width="752" height="507" alt="image" src="https://github.com/user-attachments/assets/84dd2892-f661-4863-9d18-c12aa20a91df" />
-) | ![Chat](<img width="727" height="536" alt="image" src="https://github.com/user-attachments/assets/252cc2b6-c85f-4934-9389-67a99e75d8c4" />
-) |
+|![Upload](<img width="752" height="507" alt="image" src="https://github.com/user-attachments/assets/84dd2892-f661-4863-9d18-c12aa20a91df" />)
+
+|![Chat](<img width="727" height="536" alt="image" src="https://github.com/user-attachments/assets/252cc2b6-c85f-4934-9389-67a99e75d8c4" />) |
 
 ---
 
