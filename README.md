@@ -27,7 +27,7 @@
       <img src="https://github.com/user-attachments/assets/252cc2b6-c85f-4934-9389-67a99e75d8c4" alt="Chat with the CSV Analyst Agent" width="100%">
     </td>
     <td>
-      <img src="assets/memory.png" width="100%">
+      <img src="assets/memory.png" alt="Memory of Agent" width="100%">
     </td>
   </tr>
 </table>
