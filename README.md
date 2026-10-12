@@ -1,6 +1,6 @@
 # 📊 CSV Analyst Agent
 
-> Upload any CSV file and ask questions about it in plain English. An AI agent writes and runs the pandas code for you and replies with the answer.
+> Upload any CSV file and ask questions about it in plain English. An AI agent explores your data, cleans it for machine learning (outliers and encoding), draws graphs, and replies with the answer.
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
@@ -26,6 +26,9 @@
     <td>
       <img src="https://github.com/user-attachments/assets/252cc2b6-c85f-4934-9389-67a99e75d8c4" alt="Chat with the CSV Analyst Agent" width="100%">
     </td>
+    <td>
+      <img src="assets/memory.png" width="100%">
+    </td>
   </tr>
 </table>
 
@@ -34,9 +37,13 @@
 ## ✨ Features
 
 - **Chat with your data:** ask questions like *"give me the mean salary of each department"* and get a formatted answer.
-- **Agent with tools:** the LLM decides which tool to use (inspect, filter, or analyze) to answer each question.
-- **Conversation memory:** the agent remembers earlier messages, so you can ask follow-up questions.
-- **Instant preview:** the first rows of your file are shown right after upload, along with the row count.
+- **Agent with tools:** the LLM decides which tool to use (inspect, filter, analyze, clean, encode or plot) to answer each question.
+- **Outlier detection and treatment:** find outliers with the IQR and z-score rules, then cap, replace or remove them in one message.
+- **Categorical encoding:** label, one-hot, ordinal and frequency encoding, with the agent explaining which one fits your model.
+- **Instant graphs:** histograms, boxplots, bar charts and a correlation heatmap appear right inside the chat, with the agent explaining what they show.
+- **ML-ready export:** the preview always shows your *current* data, and a **Download processed CSV** button exports the cleaned version.
+- **Undo anytime:** ask the agent to reset the data back to your original upload.
+- **Conversation memory:** the agent remembers earlier messages, so you can ask follow-up questions like *"now plot it again"*.
 - **Simple Streamlit UI:** no setup beyond uploading a file and typing a question.
 
 ---
@@ -44,26 +51,61 @@
 ## 🧠 How It Works
 
 ```
-CSV upload ──► pandas DataFrame ──► LangChain agent (Groq LLM)
-                                        │
-                  ┌─────────────────────┼─────────────────────┐
-                  ▼                     ▼                     ▼
-           get_data_info           filter_toll           analyze_data
-        (schema, shape, head)   (pandas .query())    (pandas expressions)
+CSV upload ──► pandas DataFrame (kept in a shared store) ──► LangChain agent (Groq LLM)
+                                                                    │
+       ┌───────────────┬────────────────┬───────────────┬───────────┴───┐
+       ▼               ▼                ▼               ▼               ▼
+    Explore         Outliers         Encoding         Graphs          Utility
+ get_data_info   detect_outliers    encode_data    plot_numerical    reset_data
+ filter_rows     treat_outliers                    plot_categorical
+ analyze_data                                      plot_correlation
+                                                   plot_numeric_by_category
                                         │
                                         ▼
-                         Answer shown in the Streamlit chat
+        Answer + graphs shown in the Streamlit chat, updated data shown in the preview
 ```
 
-The agent is given three tools:
+Tools that change the data (`treat_outliers`, `encode_data`, `reset_data`) update the working DataFrame, so each step builds on the previous one. Graph tools save an image that the UI displays under the agent's answer.
+
+The agent is given eleven tools:
+
+### 🔍 Explore
 
 | Tool | What it does |
 |---|---|
-| `get_data_info` | Returns the shape, column names, data types and first 5 rows of the uploaded CSV |
-| `filter_toll` | Filters rows using a pandas query condition, e.g. `Salary > 60000 and Department == 'Engineering'` |
+| `get_data_info` | Returns the shape, column names, data types, missing-value counts and first 5 rows of the uploaded CSV |
+| `filter_rows` | Filters rows using a pandas query condition, e.g. `Salary > 60000 and Department == 'Engineering'` |
 | `analyze_data` | Runs a pandas expression on the DataFrame, e.g. `df.groupby('Department')['Salary'].mean()` |
 
-The agent is built with LangChain's `create_agent`, uses an `InMemorySaver` checkpointer for conversation memory, and runs the `openai/gpt-oss-20b` model through the Groq API.
+### 🚨 Outliers
+
+| Tool | What it does |
+|---|---|
+| `detect_outliers` | Reports outliers per numeric column (IQR rule and z-score rule) plus skewness, **without** changing the data |
+| `treat_outliers` | Fixes outliers with one of four methods: `cap` (clip to IQR bounds, keeps all rows, default), `median` (replace with the median), `remove_iqr` or `remove_zscore` (drop those rows) |
+
+### 🔢 Encoding
+
+| Tool | What it does |
+|---|---|
+| `encode_data` | Converts text columns to numbers using `label`, `onehot` (skips columns with more than 20 categories), `ordinal` (you give the order, e.g. `Low,Medium,High`) or `frequency` encoding |
+
+### 📈 Graphs
+
+| Tool | What it does |
+|---|---|
+| `plot_numerical` | Histogram with density curve plus boxplot for one column, or a histogram grid for all numeric columns |
+| `plot_categorical` | Bar chart of category counts for one column, or a grid for all categorical columns |
+| `plot_correlation` | Correlation heatmap of numeric columns, plus the strongest correlated pairs |
+| `plot_numeric_by_category` | Boxplot of a numeric column split by the categories of another column |
+
+### ♻️ Utility
+
+| Tool | What it does |
+|---|---|
+| `reset_data` | Undoes all outlier treatment and encoding by restoring the original upload |
+
+The agent is built with LangChain's `create_agent`, uses an `InMemorySaver` checkpointer for conversation memory, and runs the `openai/gpt-oss-20b` model through the Groq API. A system prompt guides it through a typical ML-prep order: inspect, detect outliers, treat outliers, then encode.
 
 ---
 
@@ -73,7 +115,8 @@ The agent is built with LangChain's `create_agent`, uses an `InMemorySaver` chec
 - **UI:** Streamlit
 - **Agent framework:** LangChain + LangGraph
 - **LLM provider:** Groq (`langchain-groq`)
-- **Data handling:** pandas
+- **Data handling:** pandas, NumPy
+- **Visualization:** Matplotlib, Seaborn
 - **Deployment:** Streamlit Community Cloud, with code hosted on GitHub
 
 ---
@@ -95,6 +138,7 @@ cd CSV-ANALYST-AGENT
 ```bash
 pip install -r requirements.txt
 ```
+Make sure `requirements.txt` includes `matplotlib` and `seaborn` (used by the graph tools) alongside the existing packages.
 
 ### 4. Add your API key
 Create a file named `.env` in the project folder:
@@ -107,7 +151,7 @@ GROQ_API_KEY=your_groq_api_key_here
 ```bash
 streamlit run app.py
 ```
-Open the local URL shown in your terminal, upload a CSV (a sample file, `indianemployee.csv`, is included in this repo) and start asking questions.
+Open the local URL shown in your terminal, upload a CSV (a sample file, `indianemployee.csv`, is included in this repo) and start asking questions. Generated graphs are saved in a `plots/` folder.
 
 ---
 
@@ -126,11 +170,28 @@ Open the local URL shown in your terminal, upload a CSV (a sample file, `indiane
 
 ## 💬 Example Questions
 
+**Explore**
 - "How many rows and columns does this file have?"
 - "Give me the mean salary of each department."
 - "Who are the employees in Engineering earning more than 70000?"
 - "Which department has the highest total salary?"
 - "Who joined most recently?"
+
+**Clean for ML**
+- "Detect outliers in all numeric columns."
+- "Cap the outliers in Salary."
+- "Label encode the Department column."
+- "One-hot encode Department and Job_Title."
+- "Prepare this dataset for a machine learning model."
+
+**Visualize**
+- "Show me the distribution of Salary."
+- "Plot a bar chart of Department."
+- "Show the correlation heatmap and tell me which features are most related."
+- "Compare Salary across departments with a boxplot."
+
+**Undo**
+- "Reset the data to the original."
 
 ---
 
@@ -138,9 +199,10 @@ Open the local URL shown in your terminal, upload a CSV (a sample file, `indiane
 
 ```
 CSV-ANALYST-AGENT/
-├── app.py               # Agent, tools and Streamlit UI
+├── app.py               # Agent, tools (explore, outliers, encoding, graphs) and Streamlit UI
 ├── indianemployee.csv   # Sample dataset to try the app
 ├── requirements.txt     # Python dependencies
+├── plots/               # Generated graph images (created automatically at runtime)
 ├── .gitignore
 └── README.md
 ```
@@ -150,18 +212,23 @@ CSV-ANALYST-AGENT/
 ## ⚠️ Limitations
 
 - The `analyze_data` tool runs model-generated pandas expressions, so run this app only on data and in environments you trust.
-- Conversation memory is kept in the running session only and resets when the app restarts.
+- The working DataFrame is shared by everyone using the same running app instance, so concurrent visitors on a public deployment can overwrite each other's data. Run it locally, or deploy it privately, for reliable results.
+- Conversation memory is kept in the running session only and resets when the app restarts or a new file is uploaded.
+- Encoding "all categorical columns" will also pick up text columns like names and dates, which are usually not useful for ML. Name the columns you want encoded.
+- Outlier detection treats every numeric column the same, including ID columns, so ignore results for identifiers.
+- Graph grids are capped (12 numeric and 9 categorical columns per chart) to stay readable.
 - Answer quality depends on the underlying LLM, so verify important numbers.
 
 ---
 
 ## 🔮 Future Improvements
 
-- Chart generation (bar, line, histogram) from natural language
+- Missing-value imputation and feature scaling tools
+- Date feature extraction (year, month, day of week)
 - Support for Excel files and multiple CSVs
 - Safer, sandboxed code execution
-- Downloadable results
-- Per-user conversation sessions
+- Per-user data and conversation sessions
+- Automatic train/test split and a baseline model
 
 ---
 
