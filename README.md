@@ -18,6 +18,7 @@
   <tr>
     <th align="center">Upload a CSV and preview it</th>
     <th align="center">Ask questions in natural language</th>
+    <th align="center">Memory of Agent</th>
   </tr>
   <tr>
     <td>
